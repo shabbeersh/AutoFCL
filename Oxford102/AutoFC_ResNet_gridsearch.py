@@ -138,8 +138,6 @@ for i in num_layers:
 		print("Time:", time_taken)
 
 	# log the reults in the log dataframe
-		loss, acc = new_model.evaluate_generator(train_generator)
-		val_loss, val_acc = new_model.evaluate_generator(valid_generator)
 		best_acc_index = history.history['val_acc'].index(max(history.history['val_acc']))
 
 		log_tuple = (i, act_list, neu_list, drop_list, weight_list, time_taken, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], history.history['val_loss'][best_acc_index], history.history['val_acc'][best_acc_index])
