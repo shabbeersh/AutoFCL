@@ -8,6 +8,7 @@ from keras.preprocessing import image
 from keras.applications import ResNet50
 from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
+from keras.utils import multi_gpu_model
 
 train_images = []
 train_images_labels = []
@@ -26,8 +27,6 @@ valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224
 base_model = ResNet50(weights="imagenet")
 for layer in base_model.layers:
 	layer.trainable = False
-
-X = base_model.layers[-2].output
 
 #print("Hello")
 """
@@ -89,7 +88,7 @@ import random
 	#FILE_PATH = os.path.join("AutoFC_ResNet", "saved_models", FILE_NAME)
 	#print("File name is ",FILE_NAME)
 	#print("File path is ", FILE_PATH)
-	
+
 num_layers = param_grid['num_layers']
 inner_grid = {key: param_grid[key] for key in param_grid.keys() if key != 'num_layers'}
 print("inner grid is:",inner_grid)
@@ -97,12 +96,14 @@ inner_hyper = product(*inner_grid.values())
 
 for i in num_layers:
 	we_need = list(product(*[inner_hyper for _ in range(i)]))
-	
+
 	for j in we_need:
 		act_list = []
 		neu_list = []
 		drop_list = []
 		weight_list = []
+
+		X = base_model.layers[-2].output
 
 		for k in j:
 			activation = k[0]
@@ -114,14 +115,14 @@ for i in num_layers:
 			neu_list.append(neurons)
 			drop_list.append(dropout)
 			weight_list.append(weight_init)
-			
 
-			
+
+
 			print("Model:", i, activation, neurons, dropout, weight_init)
 			X = layers.Dense(neurons, activation=activation, kernel_initializer=weight_init)(X)
 			X = layers.Dropout(dropout)(X)
 		X = layers.Dense(NUMBER_OF_CLASSES, activation="softmax")(X)
-	
+
 		new_model = models.Model(inputs=base_model.input, outputs=X)
 		new_model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=["accuracy"])
 		start = time.time()
@@ -139,7 +140,10 @@ for i in num_layers:
 	# log the reults in the log dataframe
 		loss, acc = new_model.evaluate_generator(train_generator)
 		val_loss, val_acc = new_model.evaluate_generator(valid_generator)
-		log_tuple = (i, act_list, neu_list, drop_list, weight_list, time_taken, loss, acc, val_loss, val_acc)
+		best_acc_index = history.history['val_acc'].index(max(history.history['val_acc']))
+
+		log_tuple = (i, act_list, neu_list, drop_list, weight_list, time_taken, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], history.history['val_loss'][best_acc_index], history.history['val_acc'][best_acc_index])
+		#log_tuple = (i, act_list, neu_list, drop_list, weight_list, time_taken, loss, acc, val_loss, val_acc)
 		print("Logging results:", log_tuple)
 		log_df.loc[log_df.shape[0]] = log_tuple
 		print(log_df.shape)

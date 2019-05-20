@@ -12,8 +12,8 @@ from keras.utils import multi_gpu_model
 
 train_images = []
 train_images_labels = []
-TRAIN_PATH = os.path.join("Caltech101", "training")
-VALID_PATH = os.path.join("Caltech101", "validation")
+TRAIN_PATH = os.path.join("Corel-10k", "training")
+VALID_PATH = os.path.join("Corel-10k", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 
 # Creating generators from training and validation data
