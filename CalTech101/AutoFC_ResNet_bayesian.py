@@ -9,7 +9,6 @@ from keras.applications import ResNet50
 from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 from keras.utils import multi_gpu_model
-
 train_images = []
 train_images_labels = []
 TRAIN_PATH = os.path.join("Caltech101", "training")
