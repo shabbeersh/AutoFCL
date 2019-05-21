@@ -9,6 +9,7 @@ from keras.applications import ResNet50
 from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 from keras.utils import multi_gpu_model
+from keras.optimizers import Adam
 
 train_images = []
 train_images_labels = []
@@ -47,24 +48,6 @@ try:
 except FileNotFoundError:
 	log_df = pd.DataFrame(columns=["num_layers", "activation", "neurons", "dropout", "weight_initializer", "time", "train_loss", "train_acc", "val_loss", "val_acc"])
 
-#input()
-"""
-for activation in ["relu", "leaky", "tanh", "sigmoid"]:
-	for neurons in (2 ** j for j in range(6, 13)):
-		print("Model:", activation, neurons)
-		X = layers.Dense(128, activation="relu")(X)
-		X = layers.Dense(NUMBER_OF_CLASSES, activation="softmax")(X)
-		new_model = models.Model(inputs=base_model.input, outputs=X)
-		new_model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=["accuracy"])
-		new_model.fit_generator(train_generator, validation_data=valid_generator, epochs=10, callbacks=[early_callback])
-		FILE_NAME = f"{activation}{neurons}.h5"
-		FILE_PATH = os.path.join("AutoFC_ResNet", "saved_models", FILE_NAME)
-		print(f"Saving model {FILE_NAME}.")
-		new_model.save(FILE_PATH)
-		print(new_model.evaluate_generator(valid_generator, verbose=1))
-		print(new_model.metrics_names)
-"""
-
 param_grid = {
 	'activation': ['relu', 'tanh', 'sigmoid'],
 	'neurons': (2  ** j for j in range(6, 13)),
@@ -79,12 +62,6 @@ import time
 import random
 
 
-	#temp_log_df = pd.DataFrame(list(columns=log_df.columns))
-
-	#FILE_NAME = f"{activation}{neurons}.h5"
-	#FILE_PATH = os.path.join("AutoFC_ResNet", "saved_models", FILE_NAME)
-	#print("File name is ",FILE_NAME)
-	#print("File path is ", FILE_PATH)
 
 num_layers = param_grid['num_layers']
 inner_grid = {key: param_grid[key] for key in param_grid.keys() if key != 'num_layers'}
@@ -123,7 +100,7 @@ for i in num_layers:
 		new_model = models.Model(inputs=base_model.input, outputs=X)
 		new_model = multi_gpu_model(new_model, gpus=2)
 		adam = Adam(lr=0.00006, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1.0e-6,amsgrad=False)
-        model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])	
+		new_model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])	
 		
 		start = time.time()
 		history = new_model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[early_callback],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
