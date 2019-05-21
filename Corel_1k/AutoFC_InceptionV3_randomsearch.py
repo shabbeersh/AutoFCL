@@ -25,7 +25,7 @@ train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224
 valid_datagen = image.ImageDataGenerator()
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=batch_size)
 
-# Freezing the ResNet50 layers
+# Freezing the InceptionV3 layers
 
 #print("Hello")
 """
@@ -43,7 +43,7 @@ early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="au
 import pandas as pd
 
 try:
-    log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_Corel_1k_random_search_v1.csv"), header=0, index_col=['index'])
+    log_df = pd.read_csv(os.path.join("AutoFC_InceptionV3", "AutoFC_InceptionV3_log_Corel_1k_random_search_v1.csv"), header=0, index_col=['index'])
 except FileNotFoundError:
     log_df = pd.DataFrame(columns=["index", "num_layers", "activation", "neurons", "dropout", "weight_initializer", "time", "train_loss", "train_acc", "val_loss", "val_acc"])
     log_df = log_df.set_index('index')
@@ -60,15 +60,6 @@ param_grid = {
 
 from itertools import combinations,product
 import time
-#import random
-
-
-    #temp_log_df = pd.DataFrame(list(columns=log_df.columns))
-
-    #FILE_NAME = f"{activation}{neurons}.h5"
-    #FILE_PATH = os.path.join("AutoFC_ResNet", "saved_models", FILE_NAME)
-    #print("File name is ",FILE_NAME)
-    #print("File path is ", FILE_PATH)
 
 num_layers = param_grid['num_layers']
 inner_grid = {key: param_grid[key] for key in param_grid.keys() if key != 'num_layers'}
@@ -77,14 +68,6 @@ inner_hyper = list(product(*inner_grid.values()))
 NUM_TOTAL_PARAMS = sum([len(list(param_grid[key])) for key in param_grid])
 print(NUM_TOTAL_PARAMS)
 for i in num_layers:
-    print("Hello Loop!")
-    used_seq = []
-    print("Hello 2")
-    #we_need = list(product(*[inner_hyper for _ in range(i)]))
-
-    print("Hello 3")
-    #print("Population:", len(we_need), 20, 20 > len(we_need))
-    #in_use = random.sample(we_need, 20)
 
     temp_store = []
     for z in range(20):
@@ -101,7 +84,7 @@ for i in num_layers:
         drop_list = []
         weight_list = []
 
-        base_model = ResNet50(weights="imagenet")
+        base_model = InceptionV3(weights="imagenet")
         for layer in base_model.layers:
             layer.trainable = False
 
@@ -151,4 +134,4 @@ for i in num_layers:
         print("Shape:", log_df.shape)
 
 #print(log_df.head())
-        log_df.to_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_Corel_1k_random_search_v1.csv"))
+        log_df.to_csv(os.path.join("AutoFC_InceptionV3", "AutoFC_InceptionV3_log_Corel_1k_random_search_v1.csv"))

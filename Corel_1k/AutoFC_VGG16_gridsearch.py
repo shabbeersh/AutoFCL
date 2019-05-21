@@ -25,8 +25,8 @@ train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224
 valid_datagen = image.ImageDataGenerator()
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=batch_size)
 
-# Freezing the ResNet50 layers
-base_model = ResNet50(weights="imagenet")
+# Freezing the VGG16 layers
+base_model = VGG16(weights="imagenet")
 for layer in base_model.layers:
 	layer.trainable = False
 
@@ -44,7 +44,7 @@ early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="au
 import pandas as pd
 
 try:
-	log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_Corel_1k_grid_search_v1.csv"), header=0)
+	log_df = pd.read_csv(os.path.join("AutoFC_VGG16", "AutoFC_VGG16_log_Corel_1k_grid_search_v1.csv"), header=0)
 except FileNotFoundError:
 	log_df = pd.DataFrame(columns=["num_layers", "activation", "neurons", "dropout", "weight_initializer", "time", "train_loss", "train_acc", "val_loss", "val_acc"])
 
@@ -126,4 +126,4 @@ for i in num_layers:
 			print(log_df.head())
 
 #print(log_df.head())
-log_df.to_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_Corel_1k_grid_search_v1.csv"))
+log_df.to_csv(os.path.join("AutoFC_VGG16", "AutoFC_VGG16_log_Corel_1k_grid_search_v1.csv"))
