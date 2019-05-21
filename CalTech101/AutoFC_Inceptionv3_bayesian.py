@@ -5,7 +5,7 @@ import random
 
 from PIL import Image
 from keras.preprocessing import image
-from keras.applications import ResNet50
+from keras.applications import *
 from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 from keras.utils import multi_gpu_model, Sequence
@@ -16,6 +16,7 @@ from datetime import datetime
 import pandas as pd
 
 import GPyOpt, GPy
+
 batch_size=8
 TRAIN_PATH = os.path.join("Caltech101", "training")
 VALID_PATH = os.path.join("Caltech101", "validation")
@@ -29,7 +30,7 @@ valid_datagen = image.ImageDataGenerator()
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=8)
 
 def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
-    base_model = ResNet50(weights="imagenet")
+    base_model = InceptionV3(weights="imagenet")
     for layer in base_model.layers:
         layer.trainable = False
 
@@ -43,7 +44,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
     return model
 
 try:
-    log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_bayes_opt_v1.csv"), header=0, index_col=['index'])
+    log_df = pd.read_csv(os.path.join("AutoFC_InceptionV3", "AutoFC_InceptionV3_log_CalTech_101_bayes_opt_v1.csv"), header=0, index_col=['index'])
 except FileNotFoundError:
     log_df = pd.DataFrame(columns=['index', 'activation', 'weight_initializer', 'dropout', 'num_neurons', 'num_layers', 'loss'])
     log_df = log_df.set_index('index')
@@ -115,7 +116,7 @@ for combo in p_space:
     log_df.loc[log_df.shape[0], :] = log_tuple
     print("Shape:", log_df.shape)
 
-    log_df.to_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_bayes_opt_v1.csv"))
+    log_df.to_csv(os.path.join("AutoFC_InceptionV3", "AutoFC_InceptionV3_log_CalTech_101_bayes_opt_v1.csv"))
 
 end = datetime.time(datetime.now())
 print("Ending:", end)
