@@ -11,12 +11,12 @@ from keras.backend import tf as ktf
 from keras.utils import multi_gpu_model
 from keras.optimizers import Adam
 
-
+from alexnet import AlexNet
 
 train_images = []
 train_images_labels = []
-TRAIN_PATH = os.path.join("Caltech101", "training")
-VALID_PATH = os.path.join("Caltech101", "validation")
+TRAIN_PATH = os.path.join("corel-1k", "training")
+VALID_PATH = os.path.join("corel-1k", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 
 batch_size = 8
@@ -27,8 +27,8 @@ train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224
 valid_datagen = image.ImageDataGenerator()
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=batch_size)
 
-# Freezing the VGG16 layers
-base_model = VGG16()
+# Freezing the AlexNet layers
+base_model = AlexNet()
 for layer in base_model.layers:
 	layer.trainable = False
 
@@ -46,7 +46,7 @@ early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="au
 import pandas as pd
 
 try:
-	log_df = pd.read_csv(os.path.join("AutoFC_VGG16", "AutoFC_VGG16_log_CalTech_101_grid_search_v1.csv"), header=0)
+	log_df = pd.read_csv(os.path.join("AutoFC_AlexNet", "AutoFC_AlexNet_log_Corel_1k_grid_search_v1.csv"), header=0)
 except FileNotFoundError:
 	log_df = pd.DataFrame(columns=["num_layers", "activation", "neurons", "dropout", "weight_initializer", "time", "train_loss", "train_acc", "val_loss", "val_acc"])
 
@@ -128,4 +128,4 @@ for i in num_layers:
 			print(log_df.head())
 
 #print(log_df.head())
-log_df.to_csv(os.path.join("AutoFC_VGG16", "AutoFC_VGG16_log_CalTech_101_grid_search_v1.csv"))
+log_df.to_csv(os.path.join("AutoFC_AlexNet", "AutoFC_AlexNet_log_Corel_1k_grid_search_v1.csv"))

@@ -15,6 +15,8 @@ from datetime import datetime
 
 import pandas as pd
 
+from alexnet import AlexNet
+
 import GPyOpt, GPy
 
 batch_size=8
@@ -30,7 +32,7 @@ valid_datagen = image.ImageDataGenerator()
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=8)
 
 def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
-    base_model = InceptionV3(weights="imagenet")
+    base_model = AlexNet()
     for layer in base_model.layers:
         layer.trainable = False
 
@@ -44,7 +46,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
     return model
 
 try:
-    log_df = pd.read_csv(os.path.join("AutoFC_InceptionV3", "AutoFC_InceptionV3_log_Corel_1k_bayes_opt_v1.csv"), header=0, index_col=['index'])
+    log_df = pd.read_csv(os.path.join("AutoFC_AlexNet", "AutoFC_AlexNet_log_CalTech_101_bayes_opt_v1.csv"), header=0, index_col=['index'])
 except FileNotFoundError:
     log_df = pd.DataFrame(columns=['index', 'activation', 'weight_initializer', 'dropout', 'num_neurons', 'num_layers', 'loss'])
     log_df = log_df.set_index('index')
@@ -116,7 +118,7 @@ for combo in p_space:
     log_df.loc[log_df.shape[0], :] = log_tuple
     print("Shape:", log_df.shape)
 
-    log_df.to_csv(os.path.join("AutoFC_InceptionV3", "AutoFC_InceptionV3_log_Corel_1k_bayes_opt_v1.csv"))
+    log_df.to_csv(os.path.join("AutoFC_AlexNet", "AutoFC_AlexNet_log_CalTech_101_bayes_opt_v1.csv"))
 
 end = datetime.time(datetime.now())
 print("Ending:", end)
