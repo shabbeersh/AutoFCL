@@ -99,8 +99,7 @@ for i in num_layers:
 
 		new_model = models.Model(inputs=base_model.input, outputs=X)
 		new_model = multi_gpu_model(new_model, gpus=2)
-		adam = Adam(lr=0.00006, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1.0e-6,amsgrad=False)
-		new_model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])	
+		new_model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=["accuracy"])	
 		
 		start = time.time()
 		history = new_model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[early_callback],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
