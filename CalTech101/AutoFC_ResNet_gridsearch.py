@@ -17,11 +17,12 @@ VALID_PATH = os.path.join("Caltech101", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 
 # Creating generators from training and validation data
+batch_size = 8
 train_datagen = image.ImageDataGenerator()
-train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=32)
+train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=batch_size)
 
 valid_datagen = image.ImageDataGenerator()
-valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=32)
+valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=batch_size)
 
 # Freezing the ResNet50 layers
 base_model = ResNet50(weights="imagenet")
@@ -38,7 +39,7 @@ result_logger = LogEndResults()
 
 result_logger_2 = callbacks.LambdaCallback(on_train_end=lambda logs: print(logs))
 """
-early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=2, mode="auto")
+early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
 #reduceLR_callback = callbacks.ReduceLROnPlateau(monitor="val_loss", patience=4)
 
 import pandas as pd
@@ -71,9 +72,9 @@ for activation in ["relu", "leaky", "tanh", "sigmoid"]:
 param_grid = {
 	'activation': ['relu', 'tanh', 'sigmoid'],
 	'neurons': (2  ** j for j in range(6, 13)),
-	'dropout': numpy.arange(0, 0.99, 0.1),
+	'dropout': numpy.arange(0, 0.5, 0.1),
 	'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal'],
-	'num_layers': range(0, 5)
+	'num_layers': range(0, 4)
 }
 
 
@@ -131,10 +132,6 @@ for i in num_layers:
 	#new_model.save(FILE_PATH)
 
 		time_taken = time.time() - start
-		print(new_model.evaluate_generator(valid_generator, verbose=1))
-		print(new_model.metrics_names)
-
-
 		print("Time:", time_taken)
 
 	# log the reults in the log dataframe
