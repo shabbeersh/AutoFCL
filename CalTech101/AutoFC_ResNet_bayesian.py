@@ -10,13 +10,13 @@ from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 from keras.utils import multi_gpu_model, Sequence
 from bayes_opt import BayesianOptimization
-
+from keras.utils import multi_gpu_model
 from datetime import datetime
 
 import pandas as pd
 
 import GPyOpt, GPy
-
+batch_size=8
 TRAIN_PATH = os.path.join("Caltech101", "training")
 VALID_PATH = os.path.join("Caltech101", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
@@ -52,8 +52,8 @@ print("Shape:", log_df.shape)
 
 bounds = [
     {'name': 'dropout', 'type': 'continuous', 'domain': (0, 0.5)},
-    {'name': 'num_neurons', 'type': 'discrete', 'domain': [2 ** j for j in range(5, 8)]},
-    {'name': 'num_layers', 'type': 'discrete', 'domain': range(0, 5)}
+    {'name': 'num_neurons', 'type': 'discrete', 'domain': [2 ** j for j in range(6, 13)]},
+    {'name': 'num_layers', 'type': 'discrete', 'domain': range(0, 4)}
     #{'name': 'activation', 'type': 'discrete', 'domain': ['relu', 'tanh', 'sigmoid']},
     #{'name': 'weight_initializer', 'type': 'discrete', 'domain': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal']}
 ]
@@ -88,7 +88,7 @@ for combo in p_space:
         )
         model = multi_gpu_model(model, gpus=2)
         model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
-        model.fit_generator(train_generator, epochs=2, validation_data=valid_generator, verbose=1)
+        model.it_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[early_callback],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         score = model.evaluate_generator(valid_generator, verbose=1)
         return score[0]
 
