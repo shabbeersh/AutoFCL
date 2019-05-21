@@ -18,10 +18,10 @@ NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 
 # Creating generators from training and validation data
 train_datagen = image.ImageDataGenerator()
-train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=32)
+train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=8)
 
 valid_datagen = image.ImageDataGenerator()
-valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=32)
+valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=8)
 
 # Freezing the ResNet50 layers
 
@@ -61,7 +61,7 @@ for activation in ["relu", "leaky", "tanh", "sigmoid"]:
 param_grid = {
 	'activation': ['relu', 'tanh', 'sigmoid'],
 	'neurons': (2  ** j for j in range(6, 13)),
-	'dropout': numpy.arange(0, 0.99, 0.1),
+	'dropout': numpy.arange(0, 0.5, 0.1),
 	'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal'],
 	'num_layers': range(0, 5)
 }

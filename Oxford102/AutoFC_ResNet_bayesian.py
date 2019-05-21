@@ -8,169 +8,114 @@ from keras.preprocessing import image
 from keras.applications import ResNet50
 from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
-from keras.utils import multi_gpu_model
+from keras.utils import multi_gpu_model, Sequence
+from bayes_opt import BayesianOptimization
 
-train_images = []
-train_images_labels = []
+from datetime import datetime
+
+import pandas as pd
+
+import GPyOpt, GPy
+
 TRAIN_PATH = os.path.join("Oxford102Flowers", "training")
 VALID_PATH = os.path.join("Oxford102Flowers", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 
 # Creating generators from training and validation data
 train_datagen = image.ImageDataGenerator()
-train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=32)
+train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=8)
 
 valid_datagen = image.ImageDataGenerator()
-valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=32)
+valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=8)
 
-# Freezing the ResNet50 layers
+def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
+    base_model = ResNet50(weights="imagenet")
+    for layer in base_model.layers:
+        layer.trainable = False
 
-#print("Hello")
-"""
-class LogEndResults(callbacks.Callback):
-	def on_train_begin(self, logs):
-		print(self.model)
+    X = base_model.layers[-2].output
+    for _ in range(num_layers):
+        X = layers.Dense(num_neurons, activation=activation, kernel_initializer=weight_initializer)(X)
+        X = layers.Dropout(dropout)(X)
 
-result_logger = LogEndResults()
-
-result_logger_2 = callbacks.LambdaCallback(on_train_end=lambda logs: print(logs))
-"""
-early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=2, mode="auto")
-#reduceLR_callback = callbacks.ReduceLROnPlateau(monitor="val_loss", patience=4)
-
-import pandas as pd
+    X = layers.Dense(NUMBER_OF_CLASSES, activation='softmax')(X)
+    model = models.Model(inputs=base_model.inputs, outputs=X)
+    return model
 
 try:
-	log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log.csv"), header=0, index_col=['index'])
+    log_df = pd.read_csv('bayes_log.csv', header=0, index_col=['index'])
 except FileNotFoundError:
-	log_df = pd.DataFrame(columns=["index", "num_layers", "activation", "neurons", "dropout", "weight_initializer", "time", "train_loss", "train_acc", "val_loss", "val_acc"])
-	log_df = log_df.set_index('index')
+    log_df = pd.DataFrame(columns=['index', 'activation', 'weight_initializer', 'dropout', 'num_neurons', 'num_layers', 'loss'])
+    log_df = log_df.set_index('index')
 
-#input()
-"""
-for activation in ["relu", "leaky", "tanh", "sigmoid"]:
-	for neurons in (2 ** j for j in range(6, 13)):
-		print("Model:", activation, neurons)
-		X = layers.Dense(128, activation="relu")(X)
-		X = layers.Dense(NUMBER_OF_CLASSES, activation="softmax")(X)
+print("Shape:", log_df.shape)
 
-		new_model = models.Model(inputs=base_model.input, outputs=X)
-		new_model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=["accuracy"])
-		new_model.fit_generator(train_generator, validation_data=valid_generator, epochs=10, callbacks=[early_callback])
-		FILE_NAME = f"{activation}{neurons}.h5"
-		FILE_PATH = os.path.join("AutoFC_ResNet", "saved_models", FILE_NAME)
-		print(f"Saving model {FILE_NAME}.")
-		new_model.save(FILE_PATH)
+bounds = [
+    {'name': 'dropout', 'type': 'continuous', 'domain': (0, 0.5)},
+    {'name': 'num_neurons', 'type': 'discrete', 'domain': [2 ** j for j in range(5, 8)]},
+    {'name': 'num_layers', 'type': 'discrete', 'domain': range(0, 5)}
+    #{'name': 'activation', 'type': 'discrete', 'domain': ['relu', 'tanh', 'sigmoid']},
+    #{'name': 'weight_initializer', 'type': 'discrete', 'domain': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal']}
+]
 
-		print(new_model.evaluate_generator(valid_generator, verbose=1))
-		print(new_model.metrics_names)
-"""
+from itertools import product
 
-param_grid = {
-	'activation': ['relu', 'tanh', 'sigmoid'],
-	'neurons': (2  ** j for j in range(6, 13)),
-	'dropout': numpy.arange(0, 0.99, 0.1),
-	'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal'],
-	'num_layers': range(0, 5)
+p_space = {
+    'activation': ['relu', 'tanh', 'sigmoid'],
+    'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal']
 }
 
+p_space = list(product(*p_space.values()))
 
-from itertools import combinations,product
-import time
-#import random
+start = datetime.time(datetime.now())
+print("Starting:", start)
 
+for combo in p_space:
+    print(combo)
+    activation, weight_initializer = combo
 
-	#temp_log_df = pd.DataFrame(list(columns=log_df.columns))
+    temp_df = log_df.loc[log_df['activation'] == activation, :].loc[log_df['weight_initializer'] == weight_initializer, :]
+    if temp_df.shape[0] > 0:
+        continue
 
-	#FILE_NAME = f"{activation}{neurons}.h5"
-	#FILE_PATH = os.path.join("AutoFC_ResNet", "saved_models", FILE_NAME)
-	#print("File name is ",FILE_NAME)
-	#print("File path is ", FILE_PATH)
-
-num_layers = param_grid['num_layers']
-inner_grid = {key: param_grid[key] for key in param_grid.keys() if key != 'num_layers'}
-inner_hyper = list(product(*inner_grid.values()))
-#print(list(inner_hyper))
-NUM_TOTAL_PARAMS = sum([len(list(param_grid[key])) for key in param_grid])
-print(NUM_TOTAL_PARAMS)
-for i in num_layers:
-	print("Hello Loop!")
-	used_seq = []
-	print("Hello 2")
-	#we_need = list(product(*[inner_hyper for _ in range(i)]))
-
-	print("Hello 3")
-	#print("Population:", len(we_need), 20, 20 > len(we_need))
-	#in_use = random.sample(we_need, 20)
-
-	temp_store = []
-	for z in range(20):
-		use_now = random.sample(inner_hyper, i)
-		while use_now in used_seq:
-			use_now = random.sample(inner_hyper, i)
-
-		temp_store.append(use_now)
-	#used_seq.append(in_use)
-
-	for j in temp_store:
-		act_list = []
-		neu_list = []
-		drop_list = []
-		weight_list = []
-
-		base_model = ResNet50(weights="imagenet")
-		for layer in base_model.layers:
-			layer.trainable = False
-
-		X = base_model.layers[-2].output
-
-		for k in j:
-			activation = k[0]
-			neurons = k[1]
-			dropout = k[2]
-			weight_init = k[3]
-
-			act_list.append(activation)
-			neu_list.append(neurons)
-			drop_list.append(dropout)
-			weight_list.append(weight_init)
+    def model_fit(x):
+        model = get_model(
+            dropout=float(x[:, 0]),
+            num_layers=int(x[:, 2]),
+            num_neurons=int(x[:, 1]),
+            activation=activation,
+            weight_initializer=weight_initializer
+        )
+        model = multi_gpu_model(model, gpus=2)
+        model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.fit_generator(train_generator, epochs=2, validation_data=valid_generator, verbose=1)
+        score = model.evaluate_generator(valid_generator, verbose=1)
+        return score[0]
 
 
+    opt_ = GPyOpt.methods.BayesianOptimization(f=model_fit, domain=bounds)
+    opt_.run_optimization(max_iter=5)
 
-			print("Model:", i, activation, neurons, dropout, weight_init)
-			X = layers.Dense(neurons, activation=activation, kernel_initializer=weight_init)(X)
-			X = layers.Dropout(dropout)(X)
-		X = layers.Dense(NUMBER_OF_CLASSES, activation="softmax")(X)
+    print("""
+    Optimized Parameters:
+    \t{0}:\t{1}
+    \t{2}:\t{3}
+    \t{4}:\t{5}
+    """.format(bounds[0]["name"],opt_.x_opt[0],
+               bounds[1]["name"],opt_.x_opt[1],
+               bounds[2]["name"],opt_.x_opt[2],
+               #bounds[3]["name"],opt_.x_opt[3],
+               #bounds[4]["name"],opt_.x_opt[4],
+               #bounds[5]["name"],opt_.x_opt[5]
+    ))
+    print("optimized loss: {0}".format(opt_.fx_opt))
 
-		new_model = models.Model(inputs=base_model.input, outputs=X)
-		#new_model = multi_gpu_model(new_model, gpus=2)
-		new_model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=["accuracy"])
-		start = time.time()
-		history = new_model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, steps_per_epoch=20, validation_steps=10)
-	#print(f"Saving model {FILE_NAME}.")
-	#new_model.save(FILE_PATH)
+    log_tuple = (activation, weight_initializer, opt_.x_opt[0], opt_.x_opt[1], opt_.x_opt[2], opt_.fx_opt)
+    print("Logging record:", log_tuple)
+    log_df.loc[log_df.shape[0], :] = log_tuple
+    print("Shape:", log_df.shape)
 
-		time_taken = time.time() - start
-		print(new_model.evaluate_generator(valid_generator, verbose=1))
-		print(new_model.metrics_names)
+    log_df.to_csv('bayes_log.csv')
 
-
-		print("Time:", time_taken)
-
-	# log the reults in the log dataframe
-		best_acc_index = history.history['val_acc'].index(max(history.history['val_acc']))
-
-		log_tuple = (i, act_list, neu_list, drop_list, weight_list, time_taken, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], history.history['val_loss'][best_acc_index], history.history['val_acc'][best_acc_index])
-		#log_tuple = (i, act_list, neu_list, drop_list, weight_list, time_taken, loss, acc, val_loss, val_acc)
-		print("Columns:", log_df.columns)
-		print("Logging results:", log_tuple)
-		log_df.loc[log_df.shape[0]] = log_tuple
-		print(log_df.shape)
-
-		if log_df.shape[0] <= 5:
-			print(log_df.head())
-
-		print("Shape:", log_df.shape)
-
-#print(log_df.head())
-		log_df.to_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log.csv"))
+end = datetime.time(datetime.now())
+print("Ending:", end)
