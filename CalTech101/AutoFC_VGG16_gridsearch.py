@@ -10,9 +10,6 @@ from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 from keras.utils import multi_gpu_model
 from keras.optimizers import Adam
-
-
-
 train_images = []
 train_images_labels = []
 TRAIN_PATH = os.path.join("Caltech101", "training")
