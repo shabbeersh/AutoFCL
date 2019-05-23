@@ -63,7 +63,8 @@ from itertools import product
 
 p_space = {
     'activation': ['relu', 'tanh', 'sigmoid'],
-    'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal']
+    'weight_initializer': ['he_normal']
+    #'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal']
 }
 
 p_space = list(product(*p_space.values()))

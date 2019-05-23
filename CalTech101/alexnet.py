@@ -63,3 +63,7 @@ def AlexNet():
 
 if __name__ == '__main__':
 	AlexNet()
+
+#| (df['to'] >= p & df['to'] <=s & df['from'] <= q & df['from'] >= r)
+#& df['to'] <= q & df['to'] >= r)
+#df.loc[(df['from'] >= p & df['from'] <=s)]

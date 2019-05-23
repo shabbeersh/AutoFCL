@@ -54,8 +54,9 @@ param_grid = {
 	'activation': ['relu', 'tanh', 'sigmoid'],
 	'neurons': (2  ** j for j in range(6, 13)),
 	'dropout': numpy.arange(0, 0.5, 0.1),
-	'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal'],
+	'weight_initializer': ['he_normal'],
 	'num_layers': range(0, 4)
+	#'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal'],
 }
 
 
