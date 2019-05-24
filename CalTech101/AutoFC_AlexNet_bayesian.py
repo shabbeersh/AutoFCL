@@ -36,7 +36,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
     for layer in base_model.layers:
         layer.trainable = False
 
-    X = base_model.layers[-2].output
+    X = base_model.layers[-4].output
     for _ in range(num_layers):
         X = layers.Dense(num_neurons, activation=activation, kernel_initializer=weight_initializer)(X)
         X = layers.Dropout(dropout)(X)

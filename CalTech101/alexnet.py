@@ -48,14 +48,8 @@ def AlexNet():
 	# Add Dropout
 	model.add(Dropout(0.4))
 
-	# 3rd Fully Connected Layer
+	# 3rd Fully Connected Layer, the output layer
 	model.add(Dense(1000))
-	model.add(Activation('relu'))
-	# Add Dropout
-	model.add(Dropout(0.4))
-
-	# Output Layer
-	model.add(Dense(17))
 	model.add(Activation('softmax'))
 
 	return model
@@ -63,7 +57,3 @@ def AlexNet():
 
 if __name__ == '__main__':
 	AlexNet()
-
-#| (df['to'] >= p & df['to'] <=s & df['from'] <= q & df['from'] >= r)
-#& df['to'] <= q & df['to'] >= r)
-#df.loc[(df['from'] >= p & df['from'] <=s)]
