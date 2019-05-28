@@ -88,9 +88,9 @@ for combo in p_space:
         )
         model = multi_gpu_model(model, gpus=2)
         model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
-        model.fit_generator(train_generator, epochs=2, validation_data=valid_generator, verbose=1)
-        score = model.evaluate_generator(valid_generator, verbose=1)
-        return score[0]
+        history = model.fit_generator(train_generator, epochs=2, validation_data=valid_generator, verbose=1)
+        #score = model.evaluate_generator(valid_generator, verbose=1)
+        return max(history.history['val_acc'])
 
 
     opt_ = GPyOpt.methods.BayesianOptimization(f=model_fit, domain=bounds)
