@@ -71,9 +71,11 @@ inner_hyper = list(product(*inner_grid.values()))
 NUM_TOTAL_PARAMS = sum([len(list(param_grid[key])) for key in param_grid])
 print(NUM_TOTAL_PARAMS)
 for i in num_layers:
+    used_seq = []
 
     temp_store = []
-    for z in range(20):
+    NUMBER_OF_SAMPLES = 1 if i == 0 else 13
+    for z in range(NUMBER_OF_SAMPLES):
         use_now = random.sample(inner_hyper, i)
         while use_now in used_seq:
             use_now = random.sample(inner_hyper, i)
