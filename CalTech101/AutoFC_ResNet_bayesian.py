@@ -20,6 +20,7 @@ batch_size=8
 TRAIN_PATH = os.path.join("Caltech101", "training")
 VALID_PATH = os.path.join("Caltech101", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
+early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
 
 # Creating generators from training and validation data
 train_datagen = image.ImageDataGenerator()
