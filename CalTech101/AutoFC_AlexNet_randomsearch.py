@@ -93,7 +93,7 @@ for i in num_layers:
         for layer in base_model.layers:
             layer.trainable = False
 
-        X = base_model.layers[-4].output
+        X = base_model.layers[-9].output
 
         for k in j:
             activation = k[0]
