@@ -37,7 +37,7 @@ def AlexNet():
 	# Passing it to a Fully Connected layer
 	model.add(Flatten())
 	# 1st Fully Connected Layer
-	model.add(Dense(4096, input_shape=(224*224*3,)))
+	model.add(Dense(4096))
 	model.add(Activation('relu'))
 	# Add Dropout to prevent overfitting
 	model.add(Dropout(0.4))
