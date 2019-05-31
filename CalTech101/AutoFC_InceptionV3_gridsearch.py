@@ -96,6 +96,7 @@ for i in num_layers:
 			print("Model:", i, activation, neurons, dropout, weight_init)
 			X = layers.Dense(neurons, activation=activation, kernel_initializer=weight_init)(X)
 			X = layers.Dropout(dropout)(X)
+			X = layers.BatchNormalization()(X)
 		X = layers.Dense(NUMBER_OF_CLASSES, activation="softmax")(X)
 
 		new_model = models.Model(inputs=base_model.input, outputs=X)

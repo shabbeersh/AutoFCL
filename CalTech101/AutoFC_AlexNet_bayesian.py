@@ -40,6 +40,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
     for _ in range(num_layers):
         X = layers.Dense(num_neurons, activation=activation, kernel_initializer=weight_initializer)(X)
         X = layers.Dropout(dropout)(X)
+        X = layers.BatchNormalization()(X)
 
     X = layers.Dense(NUMBER_OF_CLASSES, activation='softmax')(X)
     model = models.Model(inputs=base_model.inputs, outputs=X)
