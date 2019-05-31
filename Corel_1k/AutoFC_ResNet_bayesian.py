@@ -52,7 +52,7 @@ print("Shape:", log_df.shape)
 
 bounds = [
     {'name': 'dropout', 'type': 'continuous', 'domain': (0, 0.5)},
-    {'name': 'num_neurons', 'type': 'discrete', 'domain': [2 ** j for j in range(6, 13)]},
+    {'name': 'num_neurons', 'type': 'discrete', 'domain': [2 ** j for j in range(6, 11)]},
     {'name': 'num_layers', 'type': 'discrete', 'domain': range(0, 4)}
     #{'name': 'activation', 'type': 'discrete', 'domain': ['relu', 'tanh', 'sigmoid']},
     #{'name': 'weight_initializer', 'type': 'discrete', 'domain': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal']}

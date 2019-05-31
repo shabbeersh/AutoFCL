@@ -70,7 +70,7 @@ for activation in ["relu", "leaky", "tanh", "sigmoid"]:
 
 param_grid = {
 	'activation': ['relu', 'tanh', 'sigmoid'],
-	'neurons': (2  ** j for j in range(6, 13)),
+	'neurons': (2  ** j for j in range(6, 11)),
 	'dropout': numpy.arange(0, 0.5, 0.1),
 	'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal'],
 	'num_layers': range(0, 5)
