@@ -74,7 +74,7 @@ for i in num_layers:
     used_seq = []
 
     temp_store = []
-    NUMBER_OF_SAMPLES = 1 if i == 0 else 13
+    NUMBER_OF_SAMPLES = 1 #if i == 0 else 13
     for z in range(NUMBER_OF_SAMPLES):
         use_now = random.sample(inner_hyper, i)
         while use_now in used_seq:
@@ -111,7 +111,7 @@ for i in num_layers:
             print("Model:", i, activation, neurons, dropout, weight_init)
             X = layers.Dense(neurons, activation=activation, kernel_initializer=weight_init)(X)
             X = layers.Dropout(dropout)(X)
-            X = layers.BatchNormalization()(X)
+            #X = layers.BatchNormalization()(X)
         X = layers.Dense(NUMBER_OF_CLASSES, activation="softmax")(X)
 
         new_model = models.Model(inputs=base_model.input, outputs=X)
