@@ -46,7 +46,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
 try:
     log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_bayes_opt_v1.csv"), header=0, index_col=['index'])
 except FileNotFoundError:
-    log_df = pd.DataFrame(columns=['index', 'activation', 'weight_initializer', 'dropout', 'num_neurons', 'num_layers', 'loss'])
+    log_df = pd.DataFrame(columns=['index', 'activation', 'weight_initializer', 'dropout', 'num_neurons', 'num_layers', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
     log_df = log_df.set_index('index')
 
 print("Shape:", log_df.shape)
@@ -79,6 +79,8 @@ for combo in p_space:
     if temp_df.shape[0] > 0:
         continue
 
+    history = None
+
     def model_fit(x):
         model = get_model(
             dropout=float(x[:, 0]),
@@ -89,9 +91,12 @@ for combo in p_space:
         )
         model = multi_gpu_model(model, gpus=2)
         model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
+
+        global history
+
         history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[early_callback],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         #score = model.evaluate_generator(valid_generator, verbose=1)
-        return max(history.history['val_acc'])
+        return history.history['val_loss'][-1]
 
 
     opt_ = GPyOpt.methods.BayesianOptimization(f=model_fit, domain=bounds)
@@ -111,7 +116,7 @@ for combo in p_space:
     ))
     print("optimized loss: {0}".format(opt_.fx_opt))
 
-    log_tuple = (activation, weight_initializer, opt_.x_opt[0], opt_.x_opt[1], opt_.x_opt[2], opt_.fx_opt)
+    log_tuple = (activation, weight_initializer, opt_.x_opt[0], opt_.x_opt[1], opt_.x_opt[2], history.history['loss'][-1], history.history['acc'][-1], opt_.fx_opt, history.history['val_acc'][-1])
     print("Logging record:", log_tuple)
     log_df.loc[log_df.shape[0], :] = log_tuple
     print("Shape:", log_df.shape)
