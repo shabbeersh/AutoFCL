@@ -85,6 +85,19 @@ for combo in p_space:
     history = None
 
     def model_fit(x):
+        print("""
+        Current Parameters:
+        \t{0}:\t{1}
+        \t{2}:\t{3}
+        \t{4}:\t{5}
+        """.format(bounds[0]["name"],opt_.x_opt[0],
+                   bounds[1]["name"],opt_.x_opt[1],
+                   bounds[2]["name"],opt_.x_opt[2],
+                   #bounds[3]["name"],opt_.x_opt[3],
+                   #bounds[4]["name"],opt_.x_opt[4],
+                   #bounds[5]["name"],opt_.x_opt[5]
+        ))
+        
         model = get_model(
             dropout=float(x[:, 0]),
             num_layers=int(x[:, 2]),
