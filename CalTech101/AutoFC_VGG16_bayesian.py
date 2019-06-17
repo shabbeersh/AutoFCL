@@ -16,7 +16,7 @@ from datetime import datetime
 import pandas as pd
 
 import GPyOpt, GPy
-
+early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
 batch_size=8
 TRAIN_PATH = os.path.join("Caltech101", "training")
 VALID_PATH = os.path.join("Caltech101", "validation")
@@ -51,7 +51,7 @@ except FileNotFoundError:
     log_df = log_df.set_index('index')
 
 print("Shape:", log_df.shape)
-
+early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
 bounds = [
     {'name': 'dropout', 'type': 'continuous', 'domain': (0, 0.5)},
     {'name': 'num_neurons', 'type': 'discrete', 'domain': [2 ** j for j in range(6, 11)]},
