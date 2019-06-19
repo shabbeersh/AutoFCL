@@ -9,7 +9,7 @@ from keras.applications import *
 from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 from keras.utils import multi_gpu_model, Sequence
-from bayes_opt import BayesianOptimization
+#from bayes_opt import BayesianOptimization
 from keras.utils import multi_gpu_model
 from datetime import datetime
 
@@ -82,16 +82,18 @@ for combo in p_space:
     for _ in range(num_layers):
         bounds.append({'name': 'num_neurons' + str(num_layers + 1), 'type': 'discrete', 'domain': [2 ** j for j in range(6, 11)]})
 
-    temp_df = log_df.loc[log_df['activation'] == activation, :].loc[log_df['weight_initializer'] == weight_initializer, :]
-    if temp_df.shape[0] > 0:
-        continue
-
     history = None
     neurons = None
-    
+
     def model_fit(x):
         global neurons
-        neurons = tuple(map(int, x[:, 1:]))
+        neurons = tuple(map(int, [x[:, i] for i in range(1, len(bounds) - 1)]))
+
+        print("Current Parameters:")
+        print("\t{}:\t{}".format(bounds[0]['name'], x[:, 0]))
+        for i in range(num_layers):
+            print("\t{}:\t{}".format(bounds[i + 1]['name'], x[:, i + 1]))
+
         model = get_model(
             dropout=float(x[:, 0]),
             num_layers=num_layers,
@@ -129,7 +131,7 @@ for combo in p_space:
     print("\t{}:\t{}".format(bounds[0]['name'], opt_.x_opt[0]))
     for i in range(num_layers):
         print("\t{}:\t{}".format(bounds[i + 1]['name'], opt_.x_opt[i + 1]))
-    
+
     print("optimized loss: {0}".format(opt_.fx_opt))
 
     log_tuple = (activation, weight_initializer, opt_.x_opt[0], neurons, num_layers, history.history['loss'][-1], history.history['acc'][-1], opt_.fx_opt, history.history['val_acc'][-1])
