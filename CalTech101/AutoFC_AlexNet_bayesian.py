@@ -87,15 +87,6 @@ for combo in p_space:
     
     def model_fit(x):
         global neurons
-        print("""
-        Current Parameters:
-        \t{0}:\t{1}
-        \t{2}:\t{3}
-        \t{4}:\t{5}
-        """.format(bounds[0]["name"],x[:, 0],
-                   bounds[1]["name"],x[:, 1],
-                   bounds[2]["name"],x[:, 2]
-        ))
         neurons = tuple(map(int, x[:, 1:]))
         model = get_model(
             dropout=float(x[:, 0]),
