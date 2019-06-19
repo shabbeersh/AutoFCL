@@ -12,13 +12,9 @@ from keras.utils import multi_gpu_model, Sequence
 #from bayes_opt import BayesianOptimization
 from keras.utils import multi_gpu_model
 from datetime import datetime
-
 import pandas as pd
-
 from alexnet import AlexNet
-
 import GPyOpt, GPy
-
 batch_size=8
 TRAIN_PATH = os.path.join("Caltech101", "training")
 VALID_PATH = os.path.join("Caltech101", "validation")
