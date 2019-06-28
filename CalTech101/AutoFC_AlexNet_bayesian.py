@@ -2,7 +2,6 @@ import os
 import numpy
 import matplotlib.pyplot as plt
 import random
-
 from PIL import Image
 from keras.preprocessing import image
 from keras.applications import *
@@ -104,7 +103,7 @@ for combo in p_space:
 
         history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[early_callback],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         #score = model.evaluate_generator(valid_generator, verbose=1)
-        return history.history['val_loss'][-1]
+        return min(history.history['val_loss'])
 
 
     opt_ = GPyOpt.methods.BayesianOptimization(f=model_fit, domain=bounds)
