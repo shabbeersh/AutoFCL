@@ -3,6 +3,7 @@ import numpy
 import matplotlib.pyplot as plt
 import random
 from PIL import Image
+from keras.optimizers import Adam
 from keras.preprocessing import image
 from keras.applications import *
 from keras import models, layers, callbacks, activations
@@ -97,7 +98,7 @@ for combo in p_space:
             weight_initializer=weight_initializer
         )
         model = multi_gpu_model(model, gpus=2)
-        model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
 
         global history
 
@@ -128,8 +129,8 @@ for combo in p_space:
         print("\t{}:\t{}".format(bounds[i + 1]['name'], opt_.x_opt[i + 1]))
 
     print("optimized loss: {0}".format(opt_.fx_opt))
-
-    log_tuple = (activation, weight_initializer, opt_.x_opt[0], neurons, num_layers, history.history['loss'][-1], history.history['acc'][-1], opt_.fx_opt, history.history['val_acc'][-1])
+    best_acc_index = history.history['val_acc'].index(min(history.history['val_loss']))
+    log_tuple = (i, act_list, neu_list, drop_list, weight_list, time_taken, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], history.history['val_loss'][best_acc_index], history.history['val_acc'][best_acc_index])
     print("Logging record:", log_tuple)
     log_df.loc[log_df.shape[0], :] = log_tuple
     print("Shape:", log_df.shape)
