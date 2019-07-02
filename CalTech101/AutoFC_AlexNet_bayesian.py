@@ -98,7 +98,7 @@ for combo in p_space:
             activation=activation,
             weight_initializer=weight_initializer
         )
-        #model = multi_gpu_model(model, gpus=2)
+        model = multi_gpu_model(model, gpus=2)
         model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
 
         global history
