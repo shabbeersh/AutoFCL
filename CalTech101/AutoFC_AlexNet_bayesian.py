@@ -75,7 +75,7 @@ for combo in p_space:
         #{'name': 'activation', 'type': 'discrete', 'domain': ['relu', 'tanh', 'sigmoid']},
         #{'name': 'weight_initializer', 'type': 'discrete', 'domain': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal']}
     ]
-    
+
     for _ in range(num_layers):
         bounds.append({'name': 'num_neurons' + str(num_layers + 1), 'type': 'discrete', 'domain': [2 ** j for j in range(6, 11)]})
 
@@ -131,7 +131,7 @@ for combo in p_space:
 
     print("optimized loss: {0}".format(opt_.fx_opt))
     best_acc_index = history.history['val_loss'].index(min(history.history['val_loss']))
-    log_tuple = (activation, weight_initializer, opt_.x_opt[0], opt_.x_opt[1], opt_.x_opt[2], history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], opt_.fx_opt, history.history['val_acc'][best_acc_index])
+    log_tuple = (activation, weight_initializer, opt_.x_opt[0], neurons, num_layers, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], opt_.fx_opt, history.history['val_acc'][best_acc_index])
     rint("Logging record:", log_tuple)
     log_df.loc[log_df.shape[0], :] = log_tuple
     print("Shape:", log_df.shape)
