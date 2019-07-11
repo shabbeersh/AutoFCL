@@ -1,4 +1,4 @@
-    import os
+import os
 import numpy
 import matplotlib.pyplot as plt
 import random
