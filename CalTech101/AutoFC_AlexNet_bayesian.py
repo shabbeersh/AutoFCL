@@ -1,4 +1,4 @@
-import os
+    import os
 import numpy
 import matplotlib.pyplot as plt
 import random
@@ -103,7 +103,7 @@ for combo in p_space:
 
         global history
 
-        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[early_callback],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
+        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=2, callbacks=[early_callback],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         #score = model.evaluate_generator(valid_generator, verbose=1)
         return min(history.history['val_loss'])
 
@@ -132,8 +132,10 @@ for combo in p_space:
     print("optimized loss: {0}".format(opt_.fx_opt))
     best_acc_index = history.history['val_loss'].index(min(history.history['val_loss']))
     log_tuple = (activation, weight_initializer, opt_.x_opt[0], neurons, num_layers, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], opt_.fx_opt, history.history['val_acc'][best_acc_index])
-    rint("Logging record:", log_tuple)
-    log_df.loc[log_df.shape[0], :] = log_tuple
+    print("Activation weight_initializer dropout_rate #neurons #FClayers train_loss train_acc val_loss val_acc")
+    print("Logging record:", log_tuple)
+    print('lof_df shape',log_df.shape[0])
+    log_df.loc[log_df.shape[0]] = log_tuple
     print("Shape:", log_df.shape)
 
     log_df.to_csv(os.path.join("AutoFC_AlexNet", "AutoFC_AlexNet_log_CalTech_101_bayes_opt_v1.csv"))
