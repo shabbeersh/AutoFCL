@@ -69,7 +69,7 @@ for combo in p_space:
     activation, weight_initializer, num_layers = combo
 
     bounds = [
-        {'name': 'dropout', 'type': 'continuous', 'domain': numpy.arange(0, 0.6, 0.1)}
+        {'name': 'dropout', 'type': 'discrete', 'domain': numpy.arange(0, 0.6, 0.1)}
         #{'name': 'num_neurons', 'type': 'discrete', 'domain': [2 ** j for j in range(6, 11)]},
         #{'name': 'num_layers', 'type': 'discrete', 'domain': range(0, 4)}
         #{'name': 'activation', 'type': 'discrete', 'domain': ['relu', 'tanh', 'sigmoid']},
