@@ -40,8 +40,8 @@ except FileNotFoundError:
     log_df = pd.DataFrame(columns=['index', 'activation', 'weight_initializer', 'dropout', 'num_neurons', 'num_layers', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
     log_df = log_df.set_index('index')
 print("Shape:", log_df.shape)
-early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=10, mode="auto")
-reduce_lr = callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, verbose=0, mode='auto', min_delta=0.0001, cooldown=0, min_lr=0)
+#early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=10, mode="auto")
+lr_reducer = ReduceLROnPlateau(monitor='val_loss', factor=np.sqrt(0.1), cooldown=0, patience=5, min_lr=0.5e-10)
 from itertools import product
 p_space = {
     'activation': ['relu', 'tanh', 'sigmoid'],
@@ -83,7 +83,7 @@ for combo in p_space:
         model = multi_gpu_model(model, gpus=2)
         model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
         global history
-        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=40, callbacks=[early_callback,reduce_lr],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
+        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=40, callbacks=[reduce_lr],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         #score = model.evaluate_generator(valid_generator, verbose=1)
         return min(history.history['val_loss'])
     opt_ = GPyOpt.methods.BayesianOptimization(f=model_fit, domain=bounds)
