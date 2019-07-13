@@ -9,7 +9,7 @@ from keras.applications import *
 from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 from keras.utils import multi_gpu_model, Sequence
-from bayes_opt import BayesianOptimization
+from keras.callbacks import ReduceLROnPlateau
 from keras.utils import multi_gpu_model
 from datetime import datetime
 
