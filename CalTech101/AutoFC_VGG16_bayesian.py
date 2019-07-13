@@ -35,8 +35,8 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
         layer.trainable = False
 
     X = base_model.layers[-4].output
-    for _ in range(num_layers):
-        X = layers.Dense(num_neurons, activation=activation, kernel_initializer=weight_initializer)(X)
+    for i in range(num_layers):
+        X = layers.Dense(num_neurons[i], activation=activation, kernel_initializer=weight_initializer)(X)
         X = layers.Dropout(dropout)(X)
         X = layers.BatchNormalization()(X)
 
@@ -72,13 +72,13 @@ for combo in p_space:
         #{'name': 'activation', 'type': 'discrete', 'domain': ['relu', 'tanh', 'sigmoid']},
         #{'name': 'weight_initializer', 'type': 'discrete', 'domain': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal']}
     ]
-    for _ in range(num_layers):
-        bounds.append({'name': 'num_neurons' + str(num_layers + 1), 'type': 'discrete', 'domain': [2 ** j for j in range(6, 11)]})
+    for i in range(num_layers):
+        bounds.append({'name': 'num_neurons' + str(i + 1), 'type': 'discrete', 'domain': [2 ** j for j in range(6, 11)]})
     history = None
     neurons = None
     def model_fit(x):
         global neurons
-        neurons = tuple(map(int, [x[:, i] for i in range(1, len(bounds))]))
+        neurons = [int(x[:, i]) for i in range(1, len(bounds))]
         print("Current Parameters:")
         print("\t{}:\t{}".format(bounds[0]['name'], x[:, 0]))
         for i in range(num_layers):
