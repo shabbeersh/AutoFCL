@@ -37,8 +37,8 @@ result_logger = LogEndResults()
 
 result_logger_2 = callbacks.LambdaCallback(on_train_end=lambda logs: print(logs))
 """
-early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
-#reduceLR_callback = callbacks.ReduceLROnPlateau(monitor="val_loss", patience=4)
+#early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
+reduceLR_callback = callbacks.ReduceLROnPlateau(monitor="val_loss", patience=4)
 
 import pandas as pd
 
@@ -116,7 +116,7 @@ for i in num_layers:
         new_model = multi_gpu_model(new_model, gpus=2)
         new_model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=["accuracy"])
         start = time.time()
-        history = new_model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[early_callback],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
+        history = new_model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[reduceLR_callback],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
     #print(f"Saving model {FILE_NAME}.")
     #new_model.save(FILE_PATH)
         time_taken = time.time() - start
