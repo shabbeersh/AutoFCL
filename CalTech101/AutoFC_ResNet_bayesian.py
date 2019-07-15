@@ -2,7 +2,7 @@ import os
 import numpy
 import matplotlib.pyplot as plt
 import random
-
+from keras import models, layers, callbacks, activations
 from PIL import Image
 from keras.preprocessing import image
 from keras.applications import ResNet50
