@@ -2,7 +2,7 @@ import os
 import numpy
 import matplotlib.pyplot as plt
 import random
-
+from keras.callbacks import ReduceLROnPlateau
 from PIL import Image
 from keras.preprocessing import image
 from keras.applications import *
