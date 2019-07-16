@@ -19,10 +19,10 @@ NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 
 # Creating generators from training and validation data
 batch_size = 8
-train_datagen = image.ImageDataGenerator()
+train_datagen = image.image.ImageDataGenerator(preprocessing_function=keras.applications.densenet.preprocess_input)
 train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=batch_size)
 
-valid_datagen = image.ImageDataGenerator()
+valid_datagen = image.image.ImageDataGenerator(preprocessing_function=keras.applications.densenet.preprocess_input)
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=batch_size)
 
 # Freezing the ResNet50 layers
