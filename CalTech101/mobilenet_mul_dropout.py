@@ -45,7 +45,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
     return model
 
 try:
-    log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_bayes_opt_v1.csv"), header=0, index_col=['index'])
+    log_df = pd.read_csv(os.path.join("AutoFC_MobileNet", "AutoFC_MobileNet_log_CalTech_101_bayes_opt_v1.csv"), header=0, index_col=['index'])
 except FileNotFoundError:
     log_df = pd.DataFrame(columns=['index', 'activation', 'weight_initializer', 'dropout', 'num_neurons', 'num_layers', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
     log_df = log_df.set_index('index')
@@ -129,7 +129,7 @@ for combo in p_space:
     log_df.loc[log_df.shape[0]] = log_tuple
     print("Shape:", log_df.shape)
 
-    log_df.to_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_bayes_opt_v1.csv"))
+    log_df.to_csv(os.path.join("AutoFC_MobileNet", "AutoFC_MobileNet_log_CalTech_101_bayes_opt_v1.csv"))
 
 end = datetime.time(datetime.now())
 print("Ending:", end)
