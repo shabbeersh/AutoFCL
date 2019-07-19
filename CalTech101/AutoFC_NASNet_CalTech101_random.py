@@ -104,7 +104,7 @@ for i in num_layers:
         weight_list = []
 
         base_model = NASNetMobile(weights="imagenet")
-        base_model.summary()
+        #base_model.summary()
         for layer in base_model.layers:
             layer.trainable = False
 
