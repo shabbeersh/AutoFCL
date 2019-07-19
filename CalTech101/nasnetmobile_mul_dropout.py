@@ -23,10 +23,10 @@ NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
 
 # Creating generators from training and validation data
-train_datagen = image.ImageDataGenerator()
+train_datagen = image.ImageDataGenerator(preprocessing_function=keras.applications.nasnet.preprocess_input)
 train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=8)
 
-valid_datagen = image.ImageDataGenerator()
+valid_datagen = image.ImageDataGenerator(preprocessing_function=keras.applications.nasnet.preprocess_input)
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=8)
 
 def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
