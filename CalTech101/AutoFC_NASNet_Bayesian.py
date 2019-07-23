@@ -2,19 +2,18 @@ import os
 import numpy
 import matplotlib.pyplot as plt
 import random
-
+import keras
 from PIL import Image
 from keras.preprocessing import image
-from keras.applications import *
+from keras.applications import NASNetMobile
 from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 from keras.utils import multi_gpu_model, Sequence
 from keras.callbacks import ReduceLROnPlateau
 from keras.utils import multi_gpu_model
 from datetime import datetime
-
+import numpy as np
 import pandas as pd
-
 import GPyOpt, GPy
 batch_size=8
 TRAIN_PATH = os.path.join("Caltech101", "training")
@@ -23,14 +22,14 @@ NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
 
 # Creating generators from training and validation data
-train_datagen = image.ImageDataGenerator()
+train_datagen = image.ImageDataGenerator(preprocessing_function=keras.applications.nasnet.preprocess_input)
 train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=8)
 
-valid_datagen = image.ImageDataGenerator()
+valid_datagen = image.ImageDataGenerator(preprocessing_function=keras.applications.nasnet.preprocess_input)
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=8)
 
 def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
-    base_model = ResNet50(weights="imagenet")
+    base_model = NASNetMobile(weights="imagenet")
     for layer in base_model.layers:
         layer.trainable = False
 
@@ -81,7 +80,7 @@ for combo in p_space:
     def model_fit(x):
         global neurons
         global dropouts
-		dropouts = [int(x[:, i]) for i in range(0, num_layers)]
+        dropouts = [int(x[:, i]) for i in range(0, num_layers)]
         neurons = [int(x[:, i]) for i in range(num_layers, len(bounds))]
         print("Current Parameters:")
         # print("\t{}:\t{}".format(bounds[0]['name'], x[:, 0]))

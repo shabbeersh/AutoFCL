@@ -5,7 +5,7 @@ import random
 
 from PIL import Image
 from keras.preprocessing import image
-from keras.applications import ResNet50
+from keras.applications import *
 from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 from keras.utils import multi_gpu_model
@@ -27,8 +27,8 @@ train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224
 valid_datagen = image.ImageDataGenerator()
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=batch_size)
 
-# Freezing the ResNet50 layers
-base_model = ResNet50(weights="imagenet")
+# Freezing the VGG16 layers
+base_model = VGG16()
 for layer in base_model.layers:
 	layer.trainable = False
 
@@ -46,7 +46,7 @@ early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="au
 import pandas as pd
 
 try:
-	log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_grid_search_v1.csv"), header=0)
+	log_df = pd.read_csv(os.path.join("AutoFC_VGG16", "AutoFC_VGG16_log_CalTech_101_grid_search_v1.csv"), header=0)
 except FileNotFoundError:
 	log_df = pd.DataFrame(columns=["num_layers", "activation", "neurons", "dropout", "weight_initializer", "time", "train_loss", "train_acc", "val_loss", "val_acc"])
 
@@ -80,7 +80,7 @@ for i in num_layers:
 		drop_list = []
 		weight_list = []
 
-		X = base_model.layers[-2].output
+		X = base_model.layers[-4].output
 
 		for k in j:
 			activation = k[0]
@@ -130,4 +130,4 @@ for i in num_layers:
 			print(log_df.head())
 
 #print(log_df.head())
-		log_df.to_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_grid_search_v1.csv"))
+		log_df.to_csv(os.path.join("AutoFC_VGG16", "AutoFC_VGG16_log_CalTech_101_grid_search_v1.csv"))

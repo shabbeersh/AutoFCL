@@ -2,7 +2,7 @@ import os
 import numpy
 import matplotlib.pyplot as plt
 import random
-
+import keras
 from PIL import Image
 from keras.preprocessing import image
 from keras.applications import *
@@ -12,29 +12,32 @@ from keras.utils import multi_gpu_model, Sequence
 from keras.callbacks import ReduceLROnPlateau
 from keras.utils import multi_gpu_model
 from datetime import datetime
-
+import numpy as np
 import pandas as pd
 
 import GPyOpt, GPy
+
+DATA_FOLDER = "Oxford102Flowers"
+
 batch_size=8
-TRAIN_PATH = os.path.join("Caltech101", "training")
-VALID_PATH = os.path.join("Caltech101", "validation")
+TRAIN_PATH = os.path.join(DATA_FOLDER, "training")
+VALID_PATH = os.path.join(DATA_FOLDER, "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
-early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
 
 # Creating generators from training and validation data
-train_datagen = image.ImageDataGenerator()
+train_datagen = image.ImageDataGenerator(preprocessing_function=keras.applications.densenet.preprocess_input)
 train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=8)
 
-valid_datagen = image.ImageDataGenerator()
+valid_datagen =  image.ImageDataGenerator(preprocessing_function=keras.applications.densenet.preprocess_input)
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=8)
 
 def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
-    base_model = ResNet50(weights="imagenet")
+    base_model = DenseNet121(weights="imagenet")
     for layer in base_model.layers:
         layer.trainable = False
 
     X = base_model.layers[-2].output
+    # change
     for i in range(num_layers):
         X = layers.Dense(num_neurons[i], activation=activation, kernel_initializer=weight_initializer)(X)
         X = layers.Dropout(dropout[i])(X)
@@ -45,7 +48,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
     return model
 
 try:
-    log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_bayes_opt_v1.csv"), header=0, index_col=['index'])
+    log_df = pd.read_csv(os.path.join("AutoFC_DenseNet", "AutoFC_DenseNet_log_CalTech_101_bayes_opt_v1.csv"), header=0, index_col=['index'])
 except FileNotFoundError:
     log_df = pd.DataFrame(columns=['index', 'activation', 'weight_initializer', 'dropout', 'num_neurons', 'num_layers', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
     log_df = log_df.set_index('index')
@@ -75,17 +78,18 @@ for combo in p_space:
         bounds.append({'name': 'dropout' + str(i + 1), 'type': 'discrete', 'domain': numpy.arange(0, 0.6, 0.1)})
     for i in range(num_layers):
         bounds.append({'name': 'num_neurons' + str(i + 1), 'type': 'discrete', 'domain': [2 ** j for j in range(6, 11)]})
+
     history = None
     neurons = None
     dropouts = None
     def model_fit(x):
         global neurons
         global dropouts
-		dropouts = [int(x[:, i]) for i in range(0, num_layers)]
+        dropouts = [int(x[:, i]) for i in range(0, num_layers)]
         neurons = [int(x[:, i]) for i in range(num_layers, len(bounds))]
         print("Current Parameters:")
-        # print("\t{}:\t{}".format(bounds[0]['name'], x[:, 0]))
         # for i in range(num_layers):
+        #     print("\t{}:\t{}".format(bounds[i]['name'], x[:, 0]))
         #     print("\t{}:\t{}".format(bounds[i + 1]['name'], x[:, i + 1]))
         model = get_model(
             dropout=dropouts,
@@ -97,10 +101,9 @@ for combo in p_space:
         model = multi_gpu_model(model, gpus=2)
         model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
         global history
-        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=40, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
+        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         #score = model.evaluate_generator(valid_generator, verbose=1)
         return min(history.history['val_loss'])
-
     opt_ = GPyOpt.methods.BayesianOptimization(f=model_fit, domain=bounds)
     opt_.run_optimization(max_iter=5)
     # print("""
@@ -118,6 +121,7 @@ for combo in p_space:
     print("Optimized Parameters:")
     for i in range(num_layers):
         print("\t{}:\t{}".format(bounds[i]['name'], opt_.x_opt[i]))
+
     for i in range(num_layers, len(bounds)):
         print("\t{}:\t{}".format(bounds[i]['name'], opt_.x_opt[i]))
     print("optimized loss: {0}".format(opt_.fx_opt))
@@ -129,7 +133,7 @@ for combo in p_space:
     log_df.loc[log_df.shape[0]] = log_tuple
     print("Shape:", log_df.shape)
 
-    log_df.to_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_bayes_opt_v1.csv"))
+    log_df.to_csv(os.path.join("AutoFC_DenseNet", "AutoFC_DenseNet_log_CalTech_101_bayes_opt_v1.csv"))
 
 end = datetime.time(datetime.now())
 print("Ending:", end)
