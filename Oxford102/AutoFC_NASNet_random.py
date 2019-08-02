@@ -10,7 +10,8 @@ from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 #import keras.utils.Sequence
 from keras.utils import multi_gpu_model
-
+import numpy as np
+from keras.callbacks import ReduceLROnPlateau
 DATA_FOLDER = "Oxford102Flowers"
 
 train_images = []
@@ -39,13 +40,12 @@ result_logger = LogEndResults()
 
 result_logger_2 = callbacks.LambdaCallback(on_train_end=lambda logs: print(logs))
 """
-early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
-reduceLR_callback = callbacks.ReduceLROnPlateau(monitor="val_loss", patience=4)
+lr_reducer = ReduceLROnPlateau(monitor='val_loss', factor=np.sqrt(0.1), cooldown=0, patience=5, min_lr=0.5e-10)
 
 import pandas as pd
 
 try:
-    log_df = pd.read_csv(os.path.join("AutoFC_NASNet", "AutoFC_NASNet_log_CalTech_101_random_search_v1.csv"), header=0, index_col=['index'])
+    log_df = pd.read_csv(os.path.join("AutoFC_NASNet", "AutoFC_NASNet_log_Oxford102_random_search_v1.csv"), header=0, index_col=['index'])
 except FileNotFoundError:
     log_df = pd.DataFrame(columns=["index", "num_layers", "activation", "neurons", "dropout", "weight_initializer", "time", "train_loss", "train_acc", "val_loss", "val_acc"])
     log_df = log_df.set_index('index')
@@ -135,7 +135,7 @@ for i in num_layers:
         new_model = multi_gpu_model(new_model, gpus=2)
         new_model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=["accuracy"])
         start = time.time()
-        history = new_model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[reduceLR_callback],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
+        history = new_model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
     #print(f"Saving model {FILE_NAME}.")
     #new_model.save(FILE_PATH)
         time_taken = time.time() - start
@@ -157,4 +157,4 @@ for i in num_layers:
         print("Shape:", log_df.shape)
 
 #print(log_df.head())
-        log_df.to_csv(os.path.join("AutoFC_NASNet", "AutoFC_NASNet_log_CalTech_101_random_search_v1.csv"))
+        log_df.to_csv(os.path.join("AutoFC_NASNet", "AutoFC_NASNet_log_Oxford102_random_search_v1.csv"))
