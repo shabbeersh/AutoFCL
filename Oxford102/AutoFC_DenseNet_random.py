@@ -11,7 +11,7 @@ from keras.applications import DenseNet121
 from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 #import keras.utils.Sequence
-#from keras.utils import multi_gpu_model
+from keras.utils import multi_gpu_model
 
 DATA_FOLDER = "Oxford102Flowers"
 
