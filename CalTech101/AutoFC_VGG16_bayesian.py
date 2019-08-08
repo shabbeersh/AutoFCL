@@ -82,7 +82,7 @@ for combo in p_space:
     def model_fit(x):
         global neurons
         global dropouts
-        dropouts = [int(x[:, i]) for i in range(0, num_layers)]
+        dropouts = [float(x[:, i]) for i in range(0, num_layers)]
         neurons = [int(x[:, i]) for i in range(num_layers, len(bounds))]
         print("Current Parameters:")
         # for i in range(num_layers):

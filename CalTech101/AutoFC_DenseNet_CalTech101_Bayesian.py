@@ -70,7 +70,7 @@ for combo in p_space:
         #{'name': 'num_layers', 'type': 'discrete', 'domain': range(0, 4)}
         #{'name': 'activation', 'type': 'discrete', 'domain': ['relu', 'tanh', 'sigmoid']},
         #{'name': 'weight_initializer', 'type': 'discrete', 'domain': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal']}
-    
+
     for i in range(num_layers):
         bounds.append({'name': 'dropout' + str(i + 1), 'type': 'discrete', 'domain': numpy.arange(0, 0.6, 0.1)})
     for i in range(num_layers):
@@ -82,7 +82,7 @@ for combo in p_space:
     def model_fit(x):
         global neurons
         global dropouts
-        dropouts = [int(x[:, i]) for i in range(0, num_layers)] 
+        dropouts = [float(x[:, i]) for i in range(0, num_layers)] 
         neurons = [int(x[:, i]) for i in range(num_layers, len(bounds))]
         print("Current Parameters:")
         # for i in range(num_layers):
