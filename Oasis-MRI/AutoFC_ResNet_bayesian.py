@@ -2,7 +2,7 @@ import os
 import numpy
 import matplotlib.pyplot as plt
 import random
-
+import keras
 from PIL import Image
 from keras.preprocessing import image
 from keras.applications import *
@@ -12,7 +12,7 @@ from keras.utils import multi_gpu_model, Sequence
 from keras.callbacks import ReduceLROnPlateau
 from keras.utils import multi_gpu_model
 from datetime import datetime
-
+import numpy as np
 import pandas as pd
 
 import GPyOpt, GPy
