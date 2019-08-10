@@ -56,7 +56,7 @@ param_grid = {
     'neurons': (2  ** j for j in range(6, 11)),
     'dropout': numpy.arange(0, 0.6, 0.1),
     'weight_initializer': ['he_normal'],
-    'num_layers': range(0, 4)
+    'num_layers': range(0, 3)
     #'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal'],
 }
 
