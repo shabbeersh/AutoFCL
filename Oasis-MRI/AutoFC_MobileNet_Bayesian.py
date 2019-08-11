@@ -2,7 +2,7 @@ import os
 import numpy
 import matplotlib.pyplot as plt
 import random
-
+import keras
 from PIL import Image
 from keras.preprocessing import image
 from keras.applications import MobileNet
@@ -12,7 +12,7 @@ from keras.utils import multi_gpu_model, Sequence
 from keras.callbacks import ReduceLROnPlateau
 from keras.utils import multi_gpu_model
 from datetime import datetime
-
+import numpy as np
 import pandas as pd
 
 import GPyOpt, GPy
@@ -20,9 +20,7 @@ batch_size=8
 TRAIN_PATH = os.path.join("oasis-mri", "training")
 VALID_PATH = os.path.join("oasis-mri", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
-early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
-
-# Creating generators from training and validation data
+#Creating generators from training and validation data
 train_datagen = image.ImageDataGenerator(preprocessing_function=keras.applications.mobilenet.preprocess_input)
 train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=8)
 
@@ -34,7 +32,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
     for layer in base_model.layers:
         layer.trainable = False
 
-    X = base_model.layers[-2].output
+    X = base_model.layers[-6].output
     for i in range(num_layers):
         X = layers.Dense(num_neurons[i], activation=activation, kernel_initializer=weight_initializer)(X)
         X = layers.Dropout(dropout[i])(X)
@@ -97,7 +95,7 @@ for combo in p_space:
         model = multi_gpu_model(model, gpus=2)
         model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
         global history
-        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=40, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
+        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         #score = model.evaluate_generator(valid_generator, verbose=1)
         return min(history.history['val_loss'])
 
