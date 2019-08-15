@@ -10,7 +10,8 @@ from keras import models, layers, callbacks, activations
 from keras.backend import tf as ktf
 #import keras.utils.Sequence
 from keras.utils import multi_gpu_model
-
+import numpy as np
+from keras.callbacks import ReduceLROnPlateau
 train_images = []
 train_images_labels = []
 TRAIN_PATH = os.path.join("oasis-mri", "training")
@@ -37,9 +38,7 @@ result_logger = LogEndResults()
 
 result_logger_2 = callbacks.LambdaCallback(on_train_end=lambda logs: print(logs))
 """
-early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
-reduceLR_callback = callbacks.ReduceLROnPlateau(monitor="val_loss", patience=4)
-
+lr_reducer = ReduceLROnPlateau(monitor='val_loss', factor=numpy.sqrt(0.1), cooldown=0, patience=5, min_lr=0.5e-10)
 import pandas as pd
 
 try:
@@ -54,7 +53,7 @@ param_grid = {
     'neurons': (2  ** j for j in range(6, 11)),
     'dropout': numpy.arange(0, 0.6, 0.1),
     'weight_initializer': ['he_normal'],
-    'num_layers': range(0, 4)
+    'num_layers': range(0, 3)
     #'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal'],
 }
 
