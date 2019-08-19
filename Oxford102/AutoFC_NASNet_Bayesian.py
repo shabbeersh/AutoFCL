@@ -15,10 +15,8 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import GPyOpt, GPy
-
-DATA_FOLDER = "Oxford102Flowers"
-
 batch_size=8
+DATA_FOLDER = "Oxford102Flowers"
 TRAIN_PATH = os.path.join(DATA_FOLDER, "training")
 VALID_PATH = os.path.join(DATA_FOLDER, "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
@@ -99,7 +97,7 @@ for combo in p_space:
         model = multi_gpu_model(model, gpus=2)
         model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
         global history
-        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
+        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=40, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         #score = model.evaluate_generator(valid_generator, verbose=1)
         return min(history.history['val_loss'])
 
