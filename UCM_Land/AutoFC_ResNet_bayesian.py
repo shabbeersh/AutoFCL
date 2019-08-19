@@ -17,8 +17,8 @@ import pandas as pd
 
 import GPyOpt, GPy
 batch_size=8
-TRAIN_PATH = os.path.join("ucm-land", "training")
-VALID_PATH = os.path.join("ucm-land", "validation")
+TRAIN_PATH = os.path.join("UCM_Land", "training")
+VALID_PATH = os.path.join("UCM_Land", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
 
