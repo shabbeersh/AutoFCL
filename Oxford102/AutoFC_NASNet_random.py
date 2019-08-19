@@ -16,8 +16,8 @@ DATA_FOLDER = "Oxford102Flowers"
 
 train_images = []
 train_images_labels = []
-TRAIN_PATH = os.path.join(DATA_FOLDER, "training")
-VALID_PATH = os.path.join(DATA_FOLDER, "validation")
+TRAIN_PATH = os.path.join("Caltech101", "training")
+VALID_PATH = os.path.join("Caltech101", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 
 # Creating generators from training and validation data
