@@ -122,7 +122,8 @@ for combo in p_space:
     for i in range(num_layers, len(bounds)):
         print("\t{}:\t{}".format(bounds[i]['name'], opt_.x_opt[i]))
     print("optimized loss: {0}".format(opt_.fx_opt))
-    best_acc_index = history.history['val_acc'].index(max(history.history['val_acc']))
+    #best_acc_index = history.history['val_acc'].index(max(history.history['val_acc']))
+    best_acc_index = history.history['val_loss'].index(opt_.fx_opt)
     log_tuple = (activation, weight_initializer, dropouts, neurons, num_layers, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], opt_.fx_opt, history.history['val_acc'][best_acc_index])
     #print("Activation weight_initializer dropout_rate #neurons #FClayers train_loss train_acc val_loss val_acc")
     print("Logging record:", log_tuple)
