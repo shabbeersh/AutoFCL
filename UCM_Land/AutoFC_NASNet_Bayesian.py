@@ -16,8 +16,8 @@ import numpy as np
 import pandas as pd
 import GPyOpt, GPy
 batch_size=8
-TRAIN_PATH = os.path.join("ucm-land", "training")
-VALID_PATH = os.path.join("ucm-land", "validation")
+TRAIN_PATH = os.path.join("UCM_Land", "training")
+VALID_PATH = os.path.join("UCM_Land", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 early_callback = callbacks.EarlyStopping(monitor="val_acc", patience=5, mode="auto")
 
@@ -44,7 +44,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
     return model
 
 try:
-    log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_ucm-land_bayes_opt_v1.csv"), header=0, index_col=['index'])
+    log_df = pd.read_csv(os.path.join("AutoFC_NASNet", "AutoFC_NASNet_log_ucm-land_bayes_opt_v1.csv"), header=0, index_col=['index'])
 except FileNotFoundError:
     log_df = pd.DataFrame(columns=['index', 'activation', 'weight_initializer', 'dropout', 'num_neurons', 'num_layers', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
     log_df = log_df.set_index('index')
@@ -96,7 +96,7 @@ for combo in p_space:
         model = multi_gpu_model(model, gpus=2)
         model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
         global history
-        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=40, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
+        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         #score = model.evaluate_generator(valid_generator, verbose=1)
         best_acc_index = history.history['val_acc'].index(max(history.history['val_acc']))
         log_tuple = (activation, weight_initializer, dropouts, neurons, num_layers, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], history.history['val_loss'][best_acc_index], history.history['val_acc'][best_acc_index])
@@ -134,7 +134,7 @@ for combo in p_space:
     # log_df.loc[log_df.shape[0]] = log_tuple
     # print("Shape:", log_df.shape)
 
-    log_df.to_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_ucm-land_bayes_opt_v1.csv"))
+    log_df.to_csv(os.path.join("AutoFC_NASNet", "AutoFC_NASNet_log_ucm-land_bayes_opt_v1.csv"))
 
 end = datetime.time(datetime.now())
 print("Ending:", end)
