@@ -101,7 +101,7 @@ for combo in p_space:
         history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         #score = model.evaluate_generator(valid_generator, verbose=1)
         best_acc_index = history.history['val_acc'].index(max(history.history['val_acc']))
-        log_tuple = (activation, weight_initializer, dropouts, neurons, num_layers, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], opt_.fx_opt, history.history['val_acc'][best_acc_index])
+        log_tuple = (activation, weight_initializer, dropouts, neurons, num_layers, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], history.history['val_loss'][best_acc_index], history.history['val_acc'][best_acc_index])
         #print("Activation weight_initializer dropout_rate #neurons #FClayers train_loss train_acc val_loss val_acc")
         print("Logging record:", log_tuple)
         print('lof_df shape',log_df.shape[0])
