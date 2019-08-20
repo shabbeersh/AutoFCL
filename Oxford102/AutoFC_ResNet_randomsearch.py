@@ -45,7 +45,7 @@ lr_reducer = ReduceLROnPlateau(monitor='val_loss', factor=np.sqrt(0.1), cooldown
 import pandas as pd
 
 try:
-    log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_random_search_v1.csv"), header=0, index_col=['index'])
+    log_df = pd.read_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_Oxford102_random_search_v1.csv"), header=0, index_col=['index'])
 except FileNotFoundError:
     log_df = pd.DataFrame(columns=["index", "num_layers", "activation", "neurons", "dropout", "weight_initializer", "time", "train_loss", "train_acc", "val_loss", "val_acc"])
     log_df = log_df.set_index('index')
@@ -156,4 +156,4 @@ for i in num_layers:
         print("Shape:", log_df.shape)
 
 #print(log_df.head())
-        log_df.to_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_CalTech_101_random_search_v1.csv"))
+        log_df.to_csv(os.path.join("AutoFC_ResNet", "AutoFC_ResNet_log_Oxford102_random_search_v1.csv"))
