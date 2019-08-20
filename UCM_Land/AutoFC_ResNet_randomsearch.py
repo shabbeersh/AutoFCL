@@ -14,16 +14,16 @@ from keras.backend import tf as ktf
 from keras.callbacks import ReduceLROnPlateau
 train_images = []
 train_images_labels = []
-TRAIN_PATH = os.path.join("ucm-land", "training")
-VALID_PATH = os.path.join("ucm-land", "validation")
+TRAIN_PATH = os.path.join("UCM_Land", "training")
+VALID_PATH = os.path.join("UCM_Land", "validation")
 NUMBER_OF_CLASSES = len(os.listdir(TRAIN_PATH))
 
 # Creating generators from training and validation data
 batch_size = 8
-train_datagen = image.ImageDataGenerator()
+train_datagen = image.ImageDataGenerator(preprocessing_function=keras.applications.resnet50.preprocess_input)
 train_generator = train_datagen.flow_from_directory(TRAIN_PATH, target_size=(224, 224), batch_size=batch_size)
 
-valid_datagen = image.ImageDataGenerator()
+valid_datagen = image.ImageDataGenerator(preprocessing_function=keras.applications.resnet50.preprocess_input)
 valid_generator = valid_datagen.flow_from_directory(VALID_PATH, target_size=(224, 224), batch_size=batch_size)
 
 # Freezing the ResNet50 layers
