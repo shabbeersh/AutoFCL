@@ -2,7 +2,7 @@ import os
 import numpy
 import matplotlib.pyplot as plt
 import random
-
+import keras
 from PIL import Image
 from keras.preprocessing import image
 from keras.applications import MobileNet
@@ -12,7 +12,7 @@ from keras.utils import multi_gpu_model, Sequence
 from keras.callbacks import ReduceLROnPlateau
 from keras.utils import multi_gpu_model
 from datetime import datetime
-
+import numpy as np
 import pandas as pd
 
 import GPyOpt, GPy
@@ -34,7 +34,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
     for layer in base_model.layers:
         layer.trainable = False
 
-    X = base_model.layers[-2].output
+    X = base_model.layers[-6].output
     for i in range(num_layers):
         X = layers.Dense(num_neurons[i], activation=activation, kernel_initializer=weight_initializer)(X)
         X = layers.Dropout(dropout[i])(X)
@@ -45,7 +45,7 @@ def get_model(num_layers, num_neurons, dropout, activation, weight_initializer):
     return model
 
 try:
-    log_df = pd.read_csv(os.path.join("AutoFC_MobileNet", "AutoFC_MobileNet_log_CalTech_101_bayes_opt_v1.csv"), header=0, index_col=['index'])
+    log_df = pd.read_csv(os.path.join("AutoFC_MobileNet", "AutoFC_MobileNet_log_CalTech_101_bayes_opt_v5.csv"), header=0, index_col=['index'])
 except FileNotFoundError:
     log_df = pd.DataFrame(columns=['index', 'activation', 'weight_initializer', 'dropout', 'num_neurons', 'num_layers', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
     log_df = log_df.set_index('index')
@@ -94,10 +94,10 @@ for combo in p_space:
             activation=activation,
             weight_initializer=weight_initializer
         )
-        model = multi_gpu_model(model, gpus=2)
+        #model = multi_gpu_model(model, gpus=2)
         model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
         global history
-        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=40, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
+        history = model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
         #score = model.evaluate_generator(valid_generator, verbose=1)
         best_acc_index = history.history['val_acc'].index(max(history.history['val_acc']))
         log_tuple = (activation, weight_initializer, dropouts, neurons, num_layers, history.history['loss'][best_acc_index], history.history['acc'][best_acc_index], history.history['val_loss'][best_acc_index], history.history['val_acc'][best_acc_index])
@@ -135,7 +135,7 @@ for combo in p_space:
     # log_df.loc[log_df.shape[0]] = log_tuple
     # print("Shape:", log_df.shape)
 
-    log_df.to_csv(os.path.join("AutoFC_MobileNet", "AutoFC_MobileNet_log_CalTech_101_bayes_opt_v1.csv"))
+    log_df.to_csv(os.path.join("AutoFC_MobileNet", "AutoFC_MobileNet_log_CalTech_101_bayes_opt_v5.csv"))
 
 end = datetime.time(datetime.now())
 print("Ending:", end)
