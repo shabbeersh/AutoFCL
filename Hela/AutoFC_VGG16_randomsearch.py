@@ -55,7 +55,7 @@ param_grid = {
     'neurons': (2  ** j for j in range(6, 11)),
     'dropout': numpy.arange(0, 0.6, 0.1),
     'weight_initializer': ['he_normal'],
-    'num_layers': range(0, 3)
+    'num_layers': range(0, 2)
     #'weight_initializer': ['constant', 'normal', 'uniform', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'orthogonal'],
 }
 
@@ -114,7 +114,7 @@ for i in num_layers:
         X = layers.Dense(NUMBER_OF_CLASSES, activation="softmax")(X)
 
         new_model = models.Model(inputs=base_model.input, outputs=X)
-        new_model = multi_gpu_model(new_model, gpus=2)
+        #new_model = multi_gpu_model(new_model, gpus=2)
         new_model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=["accuracy"])
         start = time.time()
         history = new_model.fit_generator(train_generator, validation_data=valid_generator, epochs=20, callbacks=[lr_reducer],steps_per_epoch=len(train_generator)/batch_size, validation_steps =len(valid_generator))
