@@ -10,7 +10,7 @@ from keras.preprocessing import image
 SELECTED_IMAGES = []
 SELECTED_IMAGES_LABELS = []
 DATA_FOLDER = "Oxford102Flowers"
-TRAIN_DIR = "train"
+TRAIN_DIR = "training"
 FULL_DIR = os.abspath(os.path.join(DATA_FOLDER, TRAIN_DIR))
 RANDOM_CLASSES = np.random.choice(os.listdir(FULL_DIR), size=4, replace=False)
 
