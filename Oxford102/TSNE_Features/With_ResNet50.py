@@ -17,7 +17,7 @@ RANDOM_CLASSES = np.random.choice(os.listdir(FULL_DIR), size=4, replace=False)
 for _class in RANDOM_CLASSES:
     CLASS_DIR = os.path.join(FULL_DIR, _class)
     IMAGES = np.random.choice(os.listdir(CLASS_DIR), size=15, replace=False)
-    SELECTED_IMAGES.extend(IMAGES)
+    SELECTED_IMAGES.extend([os.path.join(CLASS_DIR, img) for img in IMAGES])
     SELECTED_IMAGES_LABELS.extend([int(_class)] * 15)
 # selecting random images ends here
 
