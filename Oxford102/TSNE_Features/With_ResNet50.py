@@ -36,7 +36,7 @@ for img_path in SELECTED_IMAGES:
     x = preprocess_input(x)
 
     img_features = model.predict(x)
-    IMAGE_FEATURES.append(img_features)
+    IMAGE_FEATURES.append(img_features.tolist()[0])
 # predicting features ends here
 
 
