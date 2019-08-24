@@ -47,3 +47,4 @@ tsne = TSNE(n_components=2, perplexity=100, learning_rate=500, n_iter=5000, rand
 FEATURES_2D = tsne.fit_transform(IMAGE_FEATURES)
 
 plt.scatter(FEATURES_2D[:, 0], FEATURES_2D[:, 1], c=SELECTED_IMAGES_LABELS)
+plt.savefig("TSNE_Features_ResNet.png")
