@@ -24,7 +24,10 @@ for _class in RANDOM_CLASSES:
 
 # predicting features
 IMAGE_FEATURES = []
-model = ResNet50(weights="imagenet", include_top=False)
+base_model = ResNet50(weights="imagenet")
+X = base_model.layers[-2].output
+X = layers.Dense(102)(X)
+model = models.Model(inputs=base_model.inputs, outputs=X)
 
 for img_path in SELECTED_IMAGES:
     img = image.load_image(img_path, target_size=(224, 224))
@@ -39,3 +42,8 @@ for img_path in SELECTED_IMAGES:
 
 # plotting tsne
 tsne = TSNE(n_components=2, perplexity=100, learning_rate=500, n_iter=5000, random_state=0)
+
+# ASSUMING DATA FINALLY IS NOT SHUFFLED
+FEATURES_2D = tsne.fit_transform(IMAGE_FEATURES)
+
+plt.scatter(FEATURES_2D[:, 0], FEATURES_2D[:, 1], c=SELECTED_IMAGES_LABELS)
